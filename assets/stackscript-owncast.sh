@@ -3,6 +3,7 @@
 #<UDF name="email_address" label="Your email address for configuring SSL." example="me@example.com" default="info@only1klaus.com">
 #<UDF name="owncast_home" label="Owncast home directory" example="/opt/owncast" default="/opt/owncast">
 #<UDF name="storage_volume" label="Linode storage volume" example="owncast-storage" default="owncast-storage">
+#<UDF name="stream_key" label="Owncast stream key" example="abc123" default="abc123">
 
 ## REQUIRED IN EVERY MARKETPLACE SUBMISSION
 # Add Logging to /var/log/stackscript.log for future troubleshooting
@@ -18,12 +19,12 @@ adduser owncast --disabled-password --gecos ""
 apt-get install -y libssl-dev unzip curl
 
 # Mount storage volume
-mkfs.ext4 "/dev/disk/by-id/scsi-0Linode_Volume_$STORAGE_VOLUME"
+# mkfs.ext4 "/dev/disk/by-id/scsi-0Linode_Volume_$STORAGE_VOLUME"
 mkdir -p "$OWNCAST_HOME" 
-mount "/dev/disk/by-id/scsi-0Linode_Volume_$STORAGE_VOLUME" "$OWNCAST_HOME"
-cat >> /etc/fstab <<EOF
-/dev/disk/by-id/scsi-0Linode_Volume_${STORAGE_VOLUME} ${OWNCAST_HOME} ext4 defaults,noatime,nofail 0 2
-EOF
+# mount "/dev/disk/by-id/scsi-0Linode_Volume_$STORAGE_VOLUME" "$OWNCAST_HOME"
+# cat >> /etc/fstab <<EOF
+# /dev/disk/by-id/scsi-0Linode_Volume_${STORAGE_VOLUME} ${OWNCAST_HOME} ext4 defaults,noatime,nofail 0 2
+# EOF
 
 # Install Owncast
 cd "$OWNCAST_HOME"
@@ -31,7 +32,7 @@ cd "$OWNCAST_HOME"
 curl -s https://owncast.online/install.sh | bash
 chown -R owncast:owncast "$OWNCAST_HOME"
 
-ln -s "$OWNCAST_HOME/owncast/data/logs/owncast.log" /var/log/owncast.log
+ln -s /opt/owncast/owncast/data/logs/owncast.log /var/log/owncast.log
 
 # su - owncast -c "curl https://owncast.online/install.sh |bash"
 # Setup Owncast as a systemd service
@@ -43,7 +44,7 @@ Type=simple
 User=owncast
 Group=owncast
 WorkingDirectory=${OWNCAST_HOME}/owncast
-ExecStart=${OWNCAST_HOME}/owncast/owncast
+ExecStart=${OWNCAST_HOME}/owncast/owncast -streamkey ${STREAM_KEY} -logdir /var/log/owncast
 Restart=on-failure
 RestartSec=5
 [Install]
