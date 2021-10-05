@@ -11,16 +11,28 @@ variable "root_pass" {
 variable "authorized_keys" {
   description = "SSH keys for instance"
 }
-variable "stackscript_data" {
+variable "gitlab_stackscript_data" {
+  description = "Map of required StackScript UDF data."
+  type = map(string)
+}
+variable "owncast_stackscript_data" {
   description = "Map of required StackScript UDF data."
   type = map(string)
 }
 variable "region" {
   description = "Linode region"
 }
-variable "type" {
-  description = "Linode VM instance type"
+variable "gitlab_config" {
+  description = "config data for gitlab server"
+  type = map(string)
 }
-variable "domain_id" {
-  description = "Linode ID of domain A record to update"
+variable "owncast_config" {
+  description = "config data for owncast server"
+  type = map(string)
+}
+variable "object_storage_access_key" {
+  description = "access key for linode object storage"
+}
+variable "object_storage_secret_key" {
+  description = "secret key for linode object storage"
 }

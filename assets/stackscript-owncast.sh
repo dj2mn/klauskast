@@ -4,6 +4,7 @@
 #<UDF name="owncast_home" label="Owncast home directory" example="/opt/owncast" default="/opt/owncast">
 #<UDF name="storage_volume" label="Linode storage volume" example="owncast-storage" default="owncast-storage">
 #<UDF name="stream_key" label="Owncast stream key" example="abc123" default="abc123">
+#<UDF name="zabbix_server" label="zabbix server address" example="12.34.56.78">
 
 ## REQUIRED IN EVERY MARKETPLACE SUBMISSION
 # Add Logging to /var/log/stackscript.log for future troubleshooting
@@ -11,6 +12,22 @@ exec 1> >(tee -a "/var/log/stackscript.log") 2>&1
 # System Updates updates
 apt-get -o Acquire::ForceIPv4=true update -y
 ## END OF REQUIRED CODE FOR MARKETPLACE SUBMISSION
+
+MY_IP=$( ip -br -4 addr show eth0 | tr -s ' ' '/' | cut -d/ -f3 )
+
+# Install zabbix
+apt-get install -y zabbix-agent rsync
+mv /etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf.bak
+cat > /etc/zabbix/zabbix_agentd.conf <<EOF
+PidFile=/var/run/zabbix/zabbix_agentd.pid
+LogFile=/var/log/zabbix-agent/zabbix_agentd.log
+LogFileSize=0
+Server=${ZABBIX_SERVER}
+#ServerActive=127.0.0.1
+SourceIP=${MY_IP}
+Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
+EOF
+systemctl restart zabbix-agent
 
 # Add owncast user
 adduser owncast --disabled-password --gecos ""

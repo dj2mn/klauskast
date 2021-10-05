@@ -2,7 +2,7 @@ terraform {
   required_providers {
     linode = {
       source = "linode/linode"
-      version = "1.16.0"
+      version = "1.21.0"
     }
   }
 }
@@ -21,11 +21,11 @@ resource "linode_stackscript" "owncast-setup" {
 }
 
 resource "linode_instance" "owncast-server" {
-    image = var.image
+    image = var.owncast_config["image"]
     label = "owncast-server"
     group = "Terraform"
     region = "ap-south"
-    type = var.type
+    type = var.owncast_config["type"]
     authorized_keys = var.authorized_keys 
     root_pass = var.root_pass
     stackscript_id = linode_stackscript.owncast-setup.id
@@ -35,19 +35,29 @@ resource "linode_instance" "owncast-server" {
        "owncast_home" = var.owncast_stackscript_data["owncast_home"]
        "storage_volume" = var.owncast_stackscript_data["storage_volume"]
        "stream_key" = var.owncast_stackscript_data["stream_key"]
+       "zabbix_server" = var.owncast_stackscript_data["zabbix_server"]
     }
 }
 
-# data "linode_object_storage_cluster" "primary" {
-#     id = "ap-south-1"
-# }
-# resource "linode_object_storage_bucket" "owncast-storage" {
-#   cluster = data.linode_object_storage_cluster.primary.id
-#   label = "%s"
-# }
+data "linode_object_storage_cluster" "primary" {
+    id = "ap-south-1"
+}
+resource "linode_object_storage_bucket" "owncast-storage" {
+  access_key = var.object_storage_access_key
+  secret_key = var.object_storage_secret_key
+  cluster = data.linode_object_storage_cluster.primary.id
+  label = "owncast-storage"
+  cors_enabled = true
+  lifecycle_rule {
+    enabled = true
+    expiration {
+      days = "1"
+    }
+  }
+}
 
 resource "linode_domain_record" "owncast-endpoint" {
-    domain_id   = var.owncast_domain_id
+    domain_id   = var.owncast_config["domain_id"]
     name        = "live"
     port        = 0
     priority    = 0
