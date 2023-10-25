@@ -13,7 +13,7 @@ provider "linode" {
 
 resource "linode_stackscript" "owncast-setup" {
    label       = "owncast-setup"
-   images      = ["linode/debian10"]
+   images      = ["linode/debian12"]
    description = "deploy owncast streaming server"
    script      = file("${path.module}/assets/stackscript-owncast.sh")
    is_public   = "false"

@@ -1,6 +1,6 @@
 variable "image" {
   description = "Image to use for Linode instance"
-  default = "linode/debian10"
+  default = "linode/debian12"
 }
 variable "token" {
   description = "Linode API Personal Access Token"
