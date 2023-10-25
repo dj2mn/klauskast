@@ -11,20 +11,12 @@ variable "root_pass" {
 variable "authorized_keys" {
   description = "SSH keys for instance"
 }
-variable "gitlab_stackscript_data" {
-  description = "Map of required StackScript UDF data."
-  type = map(string)
-}
 variable "owncast_stackscript_data" {
   description = "Map of required StackScript UDF data."
   type = map(string)
 }
 variable "region" {
   description = "Linode region"
-}
-variable "gitlab_config" {
-  description = "config data for gitlab server"
-  type = map(string)
 }
 variable "owncast_config" {
   description = "config data for owncast server"

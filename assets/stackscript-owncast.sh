@@ -16,18 +16,18 @@ apt-get -o Acquire::ForceIPv4=true update -y
 MY_IP=$( ip -br -4 addr show eth0 | tr -s ' ' '/' | cut -d/ -f3 )
 
 # Install zabbix
-apt-get install -y zabbix-agent rsync
-mv /etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf.bak
-cat > /etc/zabbix/zabbix_agentd.conf <<EOF
-PidFile=/var/run/zabbix/zabbix_agentd.pid
-LogFile=/var/log/zabbix-agent/zabbix_agentd.log
-LogFileSize=0
-Server=${ZABBIX_SERVER}
-#ServerActive=127.0.0.1
-SourceIP=${MY_IP}
-Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
-EOF
-systemctl restart zabbix-agent
+# apt-get install -y zabbix-agent rsync
+# mv /etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf.bak
+# cat > /etc/zabbix/zabbix_agentd.conf <<EOF
+# PidFile=/var/run/zabbix/zabbix_agentd.pid
+# LogFile=/var/log/zabbix-agent/zabbix_agentd.log
+# LogFileSize=0
+# Server=${ZABBIX_SERVER}
+# #ServerActive=127.0.0.1
+# SourceIP=${MY_IP}
+# Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
+# EOF
+# systemctl restart zabbix-agent
 
 # Add owncast user
 adduser owncast --disabled-password --gecos ""

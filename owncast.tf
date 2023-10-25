@@ -2,7 +2,7 @@ terraform {
   required_providers {
     linode = {
       source = "linode/linode"
-      version = "1.21.0"
+      version = "~> 1.21.0"
     }
   }
 }
@@ -35,7 +35,7 @@ resource "linode_instance" "owncast-server" {
        "owncast_home" = var.owncast_stackscript_data["owncast_home"]
        "storage_volume" = var.owncast_stackscript_data["storage_volume"]
        "stream_key" = var.owncast_stackscript_data["stream_key"]
-       "zabbix_server" = var.owncast_stackscript_data["zabbix_server"]
+#       "zabbix_server" = var.owncast_stackscript_data["zabbix_server"]
     }
 }
 
