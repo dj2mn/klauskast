@@ -4,7 +4,7 @@
 #<UDF name="owncast_home" label="Owncast home directory" example="/opt/owncast" default="/opt/owncast">
 #<UDF name="storage_volume" label="Linode storage volume" example="owncast-storage" default="owncast-storage">
 #<UDF name="stream_key" label="Owncast stream key" example="abc123" default="abc123">
-#<UDF name="zabbix_server" label="zabbix server address" example="12.34.56.78">
+## < FUD name="zabbix_server" label="zabbix server address" example="12.34.56.78"> ##
 
 ## REQUIRED IN EVERY MARKETPLACE SUBMISSION
 # Add Logging to /var/log/stackscript.log for future troubleshooting
@@ -47,11 +47,11 @@ mkdir -p "$OWNCAST_HOME"
 cd "$OWNCAST_HOME"
 
 curl -s https://owncast.online/install.sh | bash
-chown -R owncast:owncast "$OWNCAST_HOME"
+chown -R owncast:owncast "$OWNCAST_HOME/owncast"
 
-ln -s /opt/owncast/owncast/data/logs/owncast.log /var/log/owncast.log
+# Link logfile to /var/log/for convenience
+ln -s "$OWNCAST_HOME/owncast/data/logs/owncast.log" /var/log/owncast.log
 
-# su - owncast -c "curl https://owncast.online/install.sh |bash"
 # Setup Owncast as a systemd service
 cat > /etc/systemd/system/owncast.service <<EOF
 [Unit]
@@ -61,7 +61,7 @@ Type=simple
 User=owncast
 Group=owncast
 WorkingDirectory=${OWNCAST_HOME}/owncast
-ExecStart=${OWNCAST_HOME}/owncast/owncast -streamkey ${STREAM_KEY} -logdir /var/log/owncast
+ExecStart=${OWNCAST_HOME}/owncast/owncast -streamkey ${STREAM_KEY}
 Restart=on-failure
 RestartSec=5
 [Install]
@@ -73,12 +73,12 @@ sudo systemd daemon-reload
 systemctl enable owncast
 systemctl start owncast
 
-# Install Caddy
-apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo apt-key add -
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee -a /etc/apt/sources.list.d/caddy-stable.list
+# Install Caddy (as per https://caddyserver.com/docs/install#debian-ubuntu-raspbian )
+apt install -y debian-keyring debian-archive-keyring apt-transport-https
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
 apt update
-apt-get install caddy
+apt install caddy
 
 # Configure Caddy for HTTPS proxying
 if [ -n "$SERVER_HOSTNAME" ]; then
